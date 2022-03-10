@@ -24,9 +24,10 @@ namespace traffic_racer
 
 class menu_state final : public state
 {
+    inline static sf::Font DEFAULT_FONT;
+
     struct section
     {
-        sf::Font font;
         sf::Text text;
         bool is_selected;
         std::function<void(menu_state&)> action;
@@ -37,11 +38,7 @@ class menu_state final : public state
             : action(std::move(action))
             , is_selected(is_selected)
         {
-            if (!font.loadFromFile("../bin/fonts/fira_code.ttf")) {
-                throw std::runtime_error("Could not load font from file!");
-            }
-
-            text.setFont(font);
+            text.setFont(menu_state::DEFAULT_FONT);
             text.setCharacterSize(character_size);
             text.setString(str);
             text.setPosition(position.first, position.second);
@@ -49,11 +46,9 @@ class menu_state final : public state
             set_selected(is_selected);
         }
 
-        ~section() { std::cout << "remove section" << std::endl; }
-
         void set_selected(bool is_selected_)
         {
-            text.setFillColor(is_selected_ ? sf::Color::Red : sf::Color::Black);
+            text.setFillColor(is_selected_ ? sf::Color::Magenta : sf::Color::Black);
             text.setStyle(is_selected_ ? sf::Text::Bold : sf::Text::Regular);
 
             is_selected = is_selected_;
@@ -70,18 +65,27 @@ public:
     void draw() override;
 
     void change_active_section(sf::Event::KeyEvent& key_event);
-    std::size_t get_index_selected_section();
+    static std::size_t get_index_selected_section(std::vector<section>& sections);
 
-    inline static void play(menu_state& menu_state);
+    inline static void select_level(menu_state& menu_state);
+
+protected:
+    void text_centralization();
 
 private:
-    const std::vector<std::string> m_str_sections = {"Начать", "Выйти"};
+    const std::vector<std::string> m_str_main_sections = {"Start", "Quit"};
+    std::vector<section> m_main_sections;
 
-    std::vector<section> m_sections;
+    const std::vector<std::string> m_str_level_sections{"Easy", "Medium", "Hard", "Back"};
+    std::vector<section> m_level_sections;
+
+    bool m_is_selecting_level;
 };
 
-void menu_state::play(menu_state& menu_state)
-{}
+void menu_state::select_level(menu_state& menu_state)
+{
+    menu_state.m_is_selecting_level = true;
+}
 
 } // namespace traffic_racer
 

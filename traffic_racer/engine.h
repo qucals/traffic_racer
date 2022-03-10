@@ -12,7 +12,7 @@
 namespace traffic_racer
 {
 
-const sf::VideoMode WINDOW_SIZE{640, 480};
+const sf::VideoMode WINDOW_SIZE{800, 600};
 const std::string WINDOW_TITLE = "Traffic Racer";
 const size_t FRAMERATE_LIMIT = 60;
 

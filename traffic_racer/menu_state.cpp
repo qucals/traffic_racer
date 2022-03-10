@@ -15,21 +15,32 @@ namespace traffic_racer
 
 menu_state::menu_state(state_machine& machine, sf::RenderWindow& window, bool replace)
     : state{machine, window, replace}
+    , m_is_selecting_level{false}
 {
-    auto window_size = window.getSize();
+    if (!DEFAULT_FONT.loadFromFile("../bin/fonts/fira_code.ttf")) {
+        throw std::runtime_error("Could not load font from file!");
+    }
 
-    auto center_x = int(window_size.x / 2);
-    auto start_y = 50;
+    for (auto& str: m_str_main_sections) {
+        m_main_sections.push_back(section{static_cast<std::string>(str), {}, [](menu_state&)
+        {}, false});
+    }
+    m_main_sections[0].action = this->select_level;
+    m_main_sections[0].set_selected(true);
+    m_main_sections[1].action = [](menu_state& ms)
+    { ms.m_machine.quit(); };
 
-    m_sections.push_back(
-        section{m_str_sections[0], {center_x, start_y}, this->play, true}
-    );
-    m_sections.push_back(
-        section{m_str_sections[1], {center_x + 30, start_y}, [](menu_state& ms)
-        {
-            ms.m_machine.quit();
-        }, false}
-    );
+    for (auto& str: m_str_level_sections) {
+        m_level_sections.push_back(section{static_cast<std::string>(str), {}, [](menu_state&)
+        {}, false});
+    }
+    m_level_sections[m_level_sections.size() - 1].action = [](menu_state& ms)
+    {
+        ms.m_is_selecting_level = false;
+    };
+    m_level_sections[0].set_selected(true);
+
+    text_centralization();
 
     std::cout << "menu_state init" << std::endl;
 }
@@ -54,7 +65,7 @@ void menu_state::update()
             case sf::Event::KeyPressed:
                 switch (event.key.code) {
                     case sf::Keyboard::Escape:
-                        m_machine.last_state();
+                        m_machine.quit();
                         break;
                     default:
                         change_active_section(event.key);
@@ -70,7 +81,7 @@ void menu_state::draw()
 {
     m_window.clear(sf::Color::White);
 
-    for (section& s: m_sections) {
+    for (section& s: !m_is_selecting_level ? m_main_sections : m_level_sections) {
         m_window.draw(s.text);
     }
 
@@ -79,36 +90,62 @@ void menu_state::draw()
 
 void menu_state::change_active_section(sf::Event::KeyEvent& key_event)
 {
-    size_t selected = get_index_selected_section();
+    std::vector<section>& sections = m_is_selecting_level ? m_level_sections : m_main_sections;
+    size_t selected = get_index_selected_section(sections);
 
     switch (key_event.code) {
         case sf::Keyboard::Up:
             if (selected - 1 < 0) {
-                m_sections[m_sections.size() - 1].set_selected(true);
+                sections[sections.size() - 1].set_selected(true);
             } else {
-                m_sections[selected - 1].set_selected(true);
+                sections[selected - 1].set_selected(true);
             }
-            m_sections[selected].set_selected(false);
+            sections[selected].set_selected(false);
             break;
         case sf::Keyboard::Down:
-            if (selected + 1 > m_sections.size() - 1) {
-                m_sections[0].set_selected(true);
+            if (selected + 1 > sections.size() - 1) {
+                sections[0].set_selected(true);
             } else {
-                m_sections[selected + 1].set_selected(true);
+                sections[selected + 1].set_selected(true);
             }
-            m_sections[selected].set_selected(false);
+            sections[selected].set_selected(false);
             break;
+        case sf::Keyboard::Enter:
+            sections[selected].action(*this);
         default:
             break;
     }
 }
 
-std::size_t menu_state::get_index_selected_section()
+std::size_t menu_state::get_index_selected_section(std::vector<section>& sections)
 {
-    for (std::size_t i = 0; i < m_sections.size(); i++) {
-        if (m_sections[i].is_selected) { return i; }
+    for (std::size_t i = 0; i < sections.size(); i++) {
+        if (sections[i].is_selected) { return i; }
     }
     return 0;
+}
+
+void menu_state::text_centralization()
+{
+    auto window_size = m_window.getSize();
+
+    float increment = -50;
+    for (section& s: m_main_sections) {
+        sf::FloatRect rect = s.text.getLocalBounds();
+        s.text.setOrigin(rect.left + rect.width / 2.0f,
+                         rect.top + rect.height / 2.0f);
+        s.text.setPosition({window_size.x / 2.0f, window_size.y / 2.0f + increment});
+        increment += 50;
+    }
+
+    increment = -100;
+    for (section& s: m_level_sections) {
+        sf::FloatRect rect = s.text.getLocalBounds();
+        s.text.setOrigin(rect.left + rect.width / 2.0f,
+                         rect.top + rect.height / 2.0f);
+        s.text.setPosition({window_size.x / 2.0f, window_size.y / 2.0f + increment});
+        increment += 50;
+    }
 }
 
 } // namespace traffic_racer
