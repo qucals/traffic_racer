@@ -8,8 +8,8 @@
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Window/Event.hpp>
 
-#include "intro_state.h"
 #include "state_machine.h"
+#include "intro_state.h"
 #include "menu_state.h"
 
 namespace traffic_racer
