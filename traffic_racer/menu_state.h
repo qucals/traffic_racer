@@ -13,6 +13,8 @@
 #include <SFML/Graphics/Texture.hpp>
 
 #include "state.h"
+#include "cache_texture_loader.h"
+#include "game_state.h"
 
 namespace sf
 {
@@ -64,13 +66,13 @@ public:
     void update() override;
     void draw() override;
 
-    void change_active_section(sf::Event::KeyEvent& key_event);
-    static std::size_t get_index_selected_section(std::vector<section>& sections);
-
-    inline static void select_level(menu_state& menu_state);
-
 protected:
-    void text_centralization();
+    void change_active_section_(sf::Event::KeyEvent& key_event);
+    static std::size_t get_index_selected_section_(std::vector<section>& sections);
+
+    inline static void select_level_(menu_state& menu_state);
+
+    void text_centralization_();
 
 private:
     const std::vector<std::string> m_str_main_sections = {"Start", "Quit"};
@@ -82,7 +84,7 @@ private:
     bool m_is_selecting_level;
 };
 
-void menu_state::select_level(menu_state& menu_state)
+void menu_state::select_level_(menu_state& menu_state)
 {
     menu_state.m_is_selecting_level = true;
 }

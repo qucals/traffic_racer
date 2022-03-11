@@ -9,6 +9,7 @@
 
 #include "state_machine.h"
 #include "menu_state.h"
+#include "game_state.h"
 
 namespace traffic_racer
 {
@@ -25,14 +26,20 @@ menu_state::menu_state(state_machine& machine, sf::RenderWindow& window, bool re
         m_main_sections.push_back(section{static_cast<std::string>(str), {}, [](menu_state&)
         {}, false});
     }
-    m_main_sections[0].action = this->select_level;
+    m_main_sections[0].action = this->select_level_;
     m_main_sections[0].set_selected(true);
     m_main_sections[1].action = [](menu_state& ms)
     { ms.m_machine.quit(); };
 
     for (auto& str: m_str_level_sections) {
-        m_level_sections.push_back(section{static_cast<std::string>(str), {}, [](menu_state&)
-        {}, false});
+        m_level_sections.push_back(section{static_cast<std::string>(str), {}, [](menu_state& ms)
+        {
+            auto gs = state_machine::build<game_state>(ms.m_machine, ms.m_window, true);
+            gs->set_level(
+                ms.m_str_level_sections[get_index_selected_section_(ms.m_level_sections)]
+            );
+            ms.m_next = std::move(gs);
+        }, false});
     }
     m_level_sections[m_level_sections.size() - 1].action = [](menu_state& ms)
     {
@@ -40,7 +47,7 @@ menu_state::menu_state(state_machine& machine, sf::RenderWindow& window, bool re
     };
     m_level_sections[0].set_selected(true);
 
-    text_centralization();
+    text_centralization_();
 
     std::cout << "menu_state init" << std::endl;
 }
@@ -68,7 +75,7 @@ void menu_state::update()
                         m_machine.quit();
                         break;
                     default:
-                        change_active_section(event.key);
+                        change_active_section_(event.key);
                         break;
                 }
             default:
@@ -88,10 +95,10 @@ void menu_state::draw()
     m_window.display();
 }
 
-void menu_state::change_active_section(sf::Event::KeyEvent& key_event)
+void menu_state::change_active_section_(sf::Event::KeyEvent& key_event)
 {
     std::vector<section>& sections = m_is_selecting_level ? m_level_sections : m_main_sections;
-    size_t selected = get_index_selected_section(sections);
+    size_t selected = get_index_selected_section_(sections);
 
     switch (key_event.code) {
         case sf::Keyboard::Up:
@@ -117,7 +124,7 @@ void menu_state::change_active_section(sf::Event::KeyEvent& key_event)
     }
 }
 
-std::size_t menu_state::get_index_selected_section(std::vector<section>& sections)
+std::size_t menu_state::get_index_selected_section_(std::vector<section>& sections)
 {
     for (std::size_t i = 0; i < sections.size(); i++) {
         if (sections[i].is_selected) { return i; }
@@ -125,7 +132,7 @@ std::size_t menu_state::get_index_selected_section(std::vector<section>& section
     return 0;
 }
 
-void menu_state::text_centralization()
+void menu_state::text_centralization_()
 {
     auto window_size = m_window.getSize();
 

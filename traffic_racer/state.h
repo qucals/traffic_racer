@@ -20,11 +20,11 @@ class state_machine;
 class state
 {
 public:
-    state(state_machine &machine, sf::RenderWindow &window, bool replace = true);
+    state(state_machine& machine, sf::RenderWindow& window, bool replace = true);
     virtual ~state() = default;
 
-    state(const state &) = delete;
-    state &operator=(const state &) = delete;
+    state(const state&) = delete;
+    state& operator=(const state&) = delete;
 
     virtual void pause() = 0;
     virtual void resume() = 0;
@@ -37,8 +37,8 @@ public:
     [[nodiscard]] bool is_replacing() const;
 
 protected:
-    sf::RenderWindow &m_window;
-    state_machine &m_machine;
+    sf::RenderWindow& m_window;
+    state_machine& m_machine;
 
     bool m_replacing;
     std::unique_ptr<state> m_next;
