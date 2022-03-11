@@ -14,6 +14,7 @@ game_state::game_state(state_machine& machine, sf::RenderWindow& window, bool re
     , m_level(LEVEL::EASY)
 {
     load_texture_();
+    generate_cars_();
 }
 
 void game_state::pause()
@@ -28,7 +29,22 @@ void game_state::resume()
 
 void game_state::update()
 {
+    for (auto event = sf::Event{}; m_window.pollEvent(event);) {
+        switch (event.type) {
+            case sf::Event::Closed:
+                m_machine.quit();
+                break;
+            case sf::Event::KeyReleased:
+            case sf::Event::KeyPressed:
+                m_player.update(&event);
+            default:
+                break;
+        }
+    }
 
+    for (auto& car : m_cars) {
+        car.update(nullptr);
+    }
 }
 
 void game_state::draw()
@@ -41,6 +57,11 @@ void game_state::draw()
 
     m_window.draw(background);
 
+    for (auto& car : m_cars) {
+        car.draw();
+    }
+
+    m_player.draw();
     m_window.display();
 }
 
@@ -49,6 +70,11 @@ void game_state::load_texture_()
     for (auto& pr: m_texture_paths) {
         mp_texture_loader->load(pr.first, pr.second);
     }
+}
+
+void game_state::generate_cars_()
+{
+
 }
 
 void game_state::set_level(const std::string& level)

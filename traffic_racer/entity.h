@@ -1,3 +1,5 @@
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "google-default-arguments"
 //
 // Created by Кирилл Галимзянов on 10.03.2022.
 //
@@ -21,7 +23,7 @@ public:
     entity(const entity&) = delete;
     entity& operator=(const entity&) = delete;
 
-    virtual void update() = 0;
+    virtual void update(sf::Event*) = 0;
     virtual void draw() = 0;
 
 protected:
@@ -31,3 +33,5 @@ protected:
 } // namespace traffic_racer
 
 #endif //TRAFFICRACER_ENTITY_H
+
+#pragma clang diagnostic pop

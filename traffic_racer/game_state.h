@@ -6,6 +6,7 @@
 #define TRAFFICRACER_GAME_STATE_H
 
 #include "state.h"
+#include "state_machine.h"
 #include "cache_texture_loader.h"
 #include "player.h"
 
@@ -14,6 +15,7 @@ namespace traffic_racer
 
 class game_state final : public state
 {
+
 public:
     enum LEVEL {
         EASY,
@@ -33,6 +35,7 @@ public:
 
 protected:
     void load_texture_();
+    void generate_cars_();
 
 private:
     LEVEL m_level;

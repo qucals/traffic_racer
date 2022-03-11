@@ -13,7 +13,7 @@ car::car(sf::RenderWindow& window)
 {
 }
 
-void car::update()
+void car::update(sf::Event* event)
 {
 
 }

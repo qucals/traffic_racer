@@ -13,11 +13,20 @@ namespace traffic_racer
 
 class player final : public car
 {
+    inline static sf::Vector2f DEFAULT_PLAYER_POSITION = {425.f, 450.f};
+
 public:
     explicit player(sf::RenderWindow& window);
 
-    void update() override;
+    void update(sf::Event* event) override;
     void draw() override;
+
+    [[nodiscard]] const sf::Vector2f& get_position() const;
+    void set_position(const sf::Vector2f& position);
+
+protected:
+    sf::Vector2f m_position;
+    cache_texture_loader* mp_texture_loader;
 };
 
 } // namespace traffic_racer

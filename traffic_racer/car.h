@@ -16,7 +16,7 @@ class car : public entity
 public:
     car(sf::RenderWindow& window);
 
-    virtual void update() override;
+    virtual void update(sf::Event* event) override;
     virtual void draw() override;
 
 protected:
