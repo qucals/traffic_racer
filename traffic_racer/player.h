@@ -21,11 +21,18 @@ public:
     void update(sf::Event* event) override;
     void draw() override;
 
+    virtual void move();
+
     [[nodiscard]] const sf::Vector2f& get_position() const;
     void set_position(const sf::Vector2f& position);
 
 protected:
     sf::Vector2f m_position;
+    sf::Vector2f m_shift_position;
+
+    float m_speed;
+    sf::Clock m_clock;
+
     cache_texture_loader* mp_texture_loader;
 };
 
