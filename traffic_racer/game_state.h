@@ -38,13 +38,20 @@ public:
 
 protected:
     void load_resources_();
-    void generate_cars_();
+    void prev_generate_cars_();
+
+    void remove_cars_off_map_();
+    void add_cars_();
+
+    std::shared_ptr<car> make_random_car_();
 
 private:
     LEVEL m_level;
 
     player m_player;
     std::vector<std::shared_ptr<car>> m_cars;
+
+    size_t m_count_cars;
 
     resource_loader* mp_resource_loader;
 
