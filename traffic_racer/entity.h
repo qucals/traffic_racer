@@ -20,9 +20,6 @@ public:
 
     virtual ~entity() = default;
 
-    entity(const entity&) = delete;
-    entity& operator=(const entity&) = delete;
-
     virtual void update(sf::Event*) = 0;
     virtual void draw() = 0;
 

@@ -17,7 +17,7 @@ game_state::game_state(state_machine& machine, sf::RenderWindow& window, bool re
     , m_count_cars(5)
 {
     load_resources_();
-    prev_generate_cars_();
+    generate_cars_();
 }
 
 void game_state::pause()
@@ -49,16 +49,16 @@ void game_state::update()
         }
     }
 
-    for (auto& car : m_cars) {
+    for (auto& car: m_cars) {
         car->update(nullptr);
     }
-
-    remove_cars_off_map_();
-    add_cars_();
 }
 
 void game_state::draw()
 {
+    remove_cars_off_map_();
+    generate_cars_();
+
     m_window.clear();
 
     sf::Texture* background_texture = mp_resource_loader->get("background");
@@ -67,7 +67,7 @@ void game_state::draw()
 
     m_window.draw(background);
 
-    for (auto& car : m_cars) {
+    for (auto& car: m_cars) {
         car->draw();
     }
 
@@ -88,26 +88,23 @@ void game_state::load_resources_()
     }
 }
 
-void game_state::prev_generate_cars_()
+void game_state::generate_cars_()
 {
-    for (size_t i = 0; i < m_count_cars; i++) {
+    for (size_t i = 0; i < rand() % (m_count_cars - m_cars.size()); i++) {
         m_cars.push_back(make_random_car_());
     }
 }
 
 void game_state::remove_cars_off_map_()
 {
-    std::remove_if(std::begin(m_cars), std::end(m_cars), [](auto ptr) {
-       auto pos = ptr->get_position();
-       return pos.y <= -120 || pos.y >= 600;
-    });
-}
+    auto new_end = std::remove_if(std::begin(m_cars), std::end(m_cars), [](auto ptr)
+    {
+        auto pos = ptr->get_position();
 
-void game_state::add_cars_()
-{
-    for (size_t i = 0; i < m_cars.size(); i++) {
-        if (!m_cars[i]) { m_cars[i] = make_random_car_(); }
-    }
+        return pos.y <= -140.f || pos.y >= 600.f;
+    });
+
+    m_cars.erase(new_end, std::end(m_cars));
 }
 
 void game_state::set_level(const std::string& level)
@@ -135,13 +132,20 @@ std::shared_ptr<car> game_state::make_random_car_()
 
     std::shared_ptr<car> pc = std::make_shared<car>(
         m_window,
-        reverse ? m_reversed_car_texture_paths[index].second : m_car_texture_paths[index].second ,
+        reverse ? m_reversed_car_texture_paths[index].second : m_car_texture_paths[index].second,
         reverse);
-    pc->set_position({DEFAULT_CARS_X_POSITION[(rand() % 4)], 100.f});
-    pc->set_shift_position({0.f, -1.f});
-    pc->set_speed(static_cast<float>(rand() % 50 + 5));
+    pc->set_shift_position({0.f,1.f});
+//    pc->set_speed(static_cast<float>(rand() % 100 + 5));
+    pc->set_speed(50.f);
 
-    if (reverse) { pc->set_speed(-1.f * pc->get_speed()); }
+    if (reverse) {
+        pc->set_speed(-1.f * pc->get_speed());
+        pc->set_position({DEFAULT_CARS_X_POSITION[rand() % 2], -130.f});
+        pc->set_speed(pc->get_speed() + m_player.get_speed());
+    } else {
+        pc->set_speed(abs(pc->get_speed() - m_player.get_speed()));
+        pc->set_position({DEFAULT_CARS_X_POSITION[(rand() % 2 + 2)], -130.f});
+    }
 
     return pc;
 }

@@ -38,11 +38,9 @@ public:
 
 protected:
     void load_resources_();
-    void prev_generate_cars_();
 
+    void generate_cars_();
     void remove_cars_off_map_();
-    void add_cars_();
-
     std::shared_ptr<car> make_random_car_();
 
 private:

@@ -26,12 +26,12 @@ void player::update(sf::Event* event)
         case sf::Event::KeyPressed:
             std::cout << event->key.code << std::endl;
             switch (event->key.code) {
-                case sf::Keyboard::Up:
-                    m_shift_position.y = -1.f;
-                    break;
-                case sf::Keyboard::Down:
-                    m_shift_position.y = 1.f;
-                    break;
+//                case sf::Keyboard::Up:
+//                    m_shift_position.y = -1.f;
+//                    break;
+//                case sf::Keyboard::Down:
+//                    m_shift_position.y = 1.f;
+//                    break;
                 case sf::Keyboard::Left:
                     m_shift_position.x = -1.f;
                     break;
@@ -42,10 +42,10 @@ void player::update(sf::Event* event)
             break;
         case sf::Event::KeyReleased:
             switch (event->key.code) {
-                case sf::Keyboard::Up:
-                case sf::Keyboard::Down:
-                    m_shift_position.y = 0.f;
-                    break;
+//                case sf::Keyboard::Up:
+//                case sf::Keyboard::Down:
+//                    m_shift_position.y = 0.f;
+//                    break;
                 case sf::Keyboard::Left:
                 case sf::Keyboard::Right:
                     m_shift_position.x = 0.f;
