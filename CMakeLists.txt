@@ -11,7 +11,7 @@ include_directories(SFML_INCLUDE_DIR)
 
 find_package(SFML 2.5.1 COMPONENTS system window graphics network audio)
 
-add_executable(TrafficRacer main.cpp traffic_racer/engine.cpp traffic_racer/engine.h traffic_racer/state_machine.cpp traffic_racer/state_machine.h traffic_racer/state.cpp traffic_racer/state.h traffic_racer/menu_state.cpp traffic_racer/menu_state.h traffic_racer/game_state.cpp traffic_racer/game_state.h traffic_racer/cache_texture_loader.h traffic_racer/entity.h traffic_racer/player.cpp traffic_racer/player.h traffic_racer/car.cpp traffic_racer/car.h)
+add_executable(TrafficRacer main.cpp traffic_racer/engine.cpp traffic_racer/engine.h traffic_racer/state_machine.cpp traffic_racer/state_machine.h traffic_racer/state.cpp traffic_racer/state.h traffic_racer/menu_state.cpp traffic_racer/menu_state.h traffic_racer/game_state.cpp traffic_racer/game_state.h traffic_racer/resource_loader.h traffic_racer/entity.h traffic_racer/player.cpp traffic_racer/player.h traffic_racer/car.cpp traffic_racer/car.h)
 target_link_libraries (TrafficRacer sfml-graphics sfml-window sfml-system)
 
 # Install executable

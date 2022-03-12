@@ -3,17 +3,19 @@
 //
 
 #include <iostream>
+#include <utility>
 
 #include "player.h"
 
 namespace traffic_racer
 {
 
-player::player(sf::RenderWindow& window)
-    : car{window}
-    , mp_texture_loader(cache_texture_loader::get_instance())
+player::player(sf::RenderWindow& window, std::string name_texture)
+    : car{window, std::move(name_texture)}
+    , mp_texture_loader(resource_loader::get_instance())
 {
     m_position = DEFAULT_PLAYER_POSITION;
+    m_speed = 250.f;
 }
 
 void player::update(sf::Event* event)
@@ -56,14 +58,26 @@ void player::draw()
 {
     move();
 
-    sf::Texture* car_texture = mp_texture_loader->get("car");
+    sf::Texture* car_texture = mp_texture_loader->get(m_name_texture);
     car_texture->setSmooth(true);
 
     sf::Sprite car;
     car.setScale({0.5f, 0.5f});
-    car.setPosition(m_position);
+    car.setPosition(car.getPosition().x + m_position.x,
+                    car.getPosition().y + m_position.y);
     car.setTexture(*car_texture);
 
+//    sf::FloatRect bounding_box = car.getGlobalBounds();
+//    car.setOrigin({bounding_box.left / 2, bounding_box.top / 2});
+//    car.setRotation(180);
+
+//    sf::RectangleShape rectangle(sf::Vector2f(128, 128));
+//    rectangle.setPosition({bounding_box.left, bounding_box.top});
+//    rectangle.setFillColor(sf::Color{ 0, 0, 0, 125 });
+//    rectangle.setOutlineColor(sf::Color::Red);
+//    rectangle.setTexture(car_texture);
+
+//    m_window.draw(rectangle);
     m_window.draw(car);
 }
 
@@ -71,7 +85,7 @@ void player::move()
 {
     float delta = m_clock.restart().asSeconds();
     if (delta >= 0.1f) { return; }
-    m_position += m_shift_position * 250.f * delta;
+    m_position += m_shift_position * m_speed * delta;
 
     if (m_position.x > 575.f) { m_position.x = 575.f; }
     else if (m_position.x < 140.f) { m_position.x = 140.f; }

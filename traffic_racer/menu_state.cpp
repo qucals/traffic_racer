@@ -19,7 +19,7 @@ menu_state::menu_state(state_machine& machine, sf::RenderWindow& window, bool re
     , m_is_selecting_level{false}
 {
     if (!DEFAULT_FONT.loadFromFile("../bin/fonts/fira_code.ttf")) {
-        throw std::runtime_error("Could not load font from file!");
+        throw std::runtime_error("Could not load_texture font from file!");
     }
 
     for (auto& str: m_str_main_sections) {

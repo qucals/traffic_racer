@@ -7,7 +7,7 @@
 
 #include "state.h"
 #include "state_machine.h"
-#include "cache_texture_loader.h"
+#include "resource_loader.h"
 #include "player.h"
 
 namespace traffic_racer
@@ -15,6 +15,9 @@ namespace traffic_racer
 
 class game_state final : public state
 {
+    const float DEFAULT_CARS_X_POSITION[4] = {
+        175.f, 290.f, 425.f, 540.f
+    };
 
 public:
     enum LEVEL {
@@ -34,18 +37,21 @@ public:
     void set_level(const std::string& level);
 
 protected:
-    void load_texture_();
+    void load_resources_();
     void generate_cars_();
 
 private:
     LEVEL m_level;
 
     player m_player;
-    std::vector<car> m_cars;
+    std::vector<std::shared_ptr<car>> m_cars;
 
-    cache_texture_loader* mp_texture_loader;
-    std::vector<std::pair<std::string, std::string>> m_texture_paths = {
-        {"../bin/img/background_game.png", "background"},
+    resource_loader* mp_resource_loader;
+
+    std::pair<std::string, std::string> m_background_texture_path =
+        {"../bin/img/background_game.png", "background"};
+
+    std::vector<std::pair<std::string, std::string>> m_car_texture_paths = {
         {"../bin/img/cars/Ambulance.png", "ambulance"},
         {"../bin/img/cars/Audi.png", "audi"},
         {"../bin/img/cars/Black_viper.png", "black_viper"},
@@ -55,6 +61,17 @@ private:
         {"../bin/img/cars/Police.png", "police"},
         {"../bin/img/cars/taxi.png", "taxi"},
         {"../bin/img/cars/truck.png", "truck"},
+    };
+    std::vector<std::pair<std::string, std::string>> m_reversed_car_texture_paths = {
+        {"../bin/img/cars/r_Ambulance.png", "r_ambulance"},
+        {"../bin/img/cars/r_Audi.png", "r_audi"},
+        {"../bin/img/cars/r_Black_viper.png", "r_black_viper"},
+        {"../bin/img/cars/r_Car.png", "r_car"},
+        {"../bin/img/cars/r_Mini_truck.png", "r_mini_truck"},
+        {"../bin/img/cars/r_Mini_van.png", "r_mini_van"},
+        {"../bin/img/cars/r_Police.png", "r_police"},
+        {"../bin/img/cars/r_taxi.png", "r_taxi"},
+        {"../bin/img/cars/r_truck.png", "r_truck"},
     };
 };
 

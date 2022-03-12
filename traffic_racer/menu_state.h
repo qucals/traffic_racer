@@ -13,7 +13,7 @@
 #include <SFML/Graphics/Texture.hpp>
 
 #include "state.h"
-#include "cache_texture_loader.h"
+#include "resource_loader.h"
 #include "game_state.h"
 
 namespace sf

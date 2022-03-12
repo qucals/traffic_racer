@@ -6,7 +6,7 @@
 #define TRAFFICRACER_CAR_H
 
 #include "entity.h"
-#include "cache_texture_loader.h"
+#include "resource_loader.h"
 
 namespace traffic_racer
 {
@@ -14,21 +14,32 @@ namespace traffic_racer
 class car : public entity
 {
 public:
-    car(sf::RenderWindow& window, bool reverse = false);
+    car(sf::RenderWindow& window, std::string name_texture, bool reverse = false);
 
+    void update(sf::Event*) override;
     void draw() override;
+
     virtual void move();
 
     [[nodiscard]] const sf::Vector2f& get_position() const;
     void set_position(const sf::Vector2f& position);
 
+    [[nodiscard]] const sf::Vector2f& get_shift_position() const;
+    void set_shift_position(const sf::Vector2f& shift_position);
+
+    [[nodiscard]] float get_speed() const;
+    void set_speed(float speed);
+
 protected:
-    cache_texture_loader* mp_texture_loader;
+    std::string m_name_texture;
+    resource_loader* mp_texture_loader;
 
     sf::Vector2f m_position;
     sf::Vector2f m_shift_position;
+    sf::Clock m_clock;
 
     bool m_reverse;
+    float m_speed;
 };
 
 } // namespace traffic_racer

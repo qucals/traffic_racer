@@ -2,8 +2,8 @@
 // Created by Кирилл Галимзянов on 10.03.2022.
 //
 
-#ifndef TRAFFICRACER_CACHE_TEXTURE_LOADER_H
-#define TRAFFICRACER_CACHE_TEXTURE_LOADER_H
+#ifndef TRAFFICRACER_RESOURCE_LOADER_H
+#define TRAFFICRACER_RESOURCE_LOADER_H
 
 #include <map>
 #include <string>
@@ -13,16 +13,16 @@
 namespace traffic_racer
 {
 
-class cache_texture_loader
+class resource_loader
 {
 public:
-    cache_texture_loader(cache_texture_loader&) = delete;
-    void operator=(const cache_texture_loader&) = delete;
+    resource_loader(resource_loader&) = delete;
+    void operator=(const resource_loader&) = delete;
 
-    inline static cache_texture_loader* get_instance()
+    inline static resource_loader* get_instance()
     {
-        if (!cache_texture_loader::m_instance) { cache_texture_loader::m_instance = new cache_texture_loader(); }
-        return cache_texture_loader::m_instance;
+        if (!resource_loader::m_instance) { resource_loader::m_instance = new resource_loader(); }
+        return resource_loader::m_instance;
     }
 
     void load(const std::string& path, const std::string& name = "", bool replace = false)
@@ -50,9 +50,9 @@ public:
     }
 
 protected:
-    cache_texture_loader() = default;
+    resource_loader() = default;
 
-    inline static cache_texture_loader* m_instance;
+    inline static resource_loader* m_instance;
 
 private:
     std::map<std::string, sf::Texture> m_textures;
@@ -60,4 +60,4 @@ private:
 
 } // namespace traffic_racer
 
-#endif //TRAFFICRACER_CACHE_TEXTURE_LOADER_H
+#endif //TRAFFICRACER_RESOURCE_LOADER_H
