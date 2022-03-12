@@ -12,9 +12,8 @@ namespace traffic_racer
 player::player(sf::RenderWindow& window)
     : car{window}
     , mp_texture_loader(cache_texture_loader::get_instance())
-    , m_position(DEFAULT_PLAYER_POSITION)
-    , m_shift_position({})
 {
+    m_position = DEFAULT_PLAYER_POSITION;
 }
 
 void player::update(sf::Event* event)
@@ -73,16 +72,12 @@ void player::move()
     float delta = m_clock.restart().asSeconds();
     if (delta >= 0.1f) { return; }
     m_position += m_shift_position * 250.f * delta;
-}
 
-const sf::Vector2f& player::get_position() const
-{
-    return m_position;
-}
+    if (m_position.x > 575.f) { m_position.x = 575.f; }
+    else if (m_position.x < 140.f) { m_position.x = 140.f; }
 
-void player::set_position(const sf::Vector2f& position)
-{
-    m_position = position;
+    if (m_position.y < 20.f) { m_position.y = 20.f; }
+    else if (m_position.y > 450.f) { m_position.y = 450.f; }
 }
 
 } // namespace traffic_racer

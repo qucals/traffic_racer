@@ -34,6 +34,9 @@ void game_state::update()
             case sf::Event::Closed:
                 m_machine.quit();
                 break;
+            case sf::Event::MouseButtonPressed:
+                std::cout << sf::Mouse::getPosition(m_window).x << " " << sf::Mouse::getPosition(m_window).y << std::endl;
+                break;
             case sf::Event::KeyReleased:
             case sf::Event::KeyPressed:
                 m_player.update(&event);
