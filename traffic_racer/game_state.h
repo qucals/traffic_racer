@@ -23,8 +23,8 @@ class game_state final : public state
         210.f, 330.f, 450.f, 580.f
     };
 
-    const float DEFAULT_TOP_BREAK_POSITION = -140.f;
-    const float DEFAULT_BOTTOM_BREAK_POSITION = 600.f;
+    const float START_CAR_POSITION = -140.f;
+    const float STOP_CAR_POSITION = 600.f;
 
 public:
     game_state(state_machine& machine, sf::RenderWindow& window, bool replace = true);
@@ -60,6 +60,10 @@ private:
 
     size_t m_count_cars;
 
+    sf::Clock m_clock;
+    std::vector<bool> m_free_status_roads;
+    std::vector<sf::Time> m_time_reserved_roads;
+
     sf::Sprite m_background_sprite;
 
     std::pair<std::string, std::string> m_background_texture_path =
@@ -76,6 +80,7 @@ private:
         {"../bin/img/cars/taxi.png", "taxi"},
         {"../bin/img/cars/truck.png", "truck"},
     };
+
     std::vector<std::pair<std::string, std::string>> m_reversed_car_texture_paths = {
         {"../bin/img/cars/r_Ambulance.png", "r_ambulance"},
         {"../bin/img/cars/r_Audi.png", "r_audi"},

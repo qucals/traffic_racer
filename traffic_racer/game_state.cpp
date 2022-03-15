@@ -11,6 +11,9 @@ game_state::game_state(state_machine& machine, sf::RenderWindow& window, bool re
     : state(machine, window, replace)
     , mp_resource_loader(resource_loader::get_instance())
     , m_count_cars(5)
+    , m_free_status_roads(4, true)
+    , m_time_reserved_roads(4, sf::seconds(0))
+    , m_generator(time(0))
 {
     load_resources_();
 
@@ -96,8 +99,19 @@ void game_state::load_resources_()
 
 void game_state::generate_cars_()
 {
+    sf::Time current = m_clock.getElapsedTime();
+    for (int i = 0; i < m_time_reserved_roads.size(); i++) {
+        if (current.asSeconds() - m_time_reserved_roads[i].asSeconds() > 0.5f) {
+            m_free_status_roads[i] = true;
+        }
+    }
+
+    int free_roads = std::count(std::begin(m_free_status_roads),
+                                std::end(m_free_status_roads), true);
+
     std::uniform_int_distribution<int> distribution(0, m_count_cars - m_cars.size());
-    for (size_t i = 0; i < distribution(m_generator); i++) {
+
+    for (size_t i = 0; i < distribution(m_generator) && i < free_roads; i++) {
         m_cars.push_back(make_random_car_());
     }
 }
@@ -107,7 +121,7 @@ void game_state::remove_cars_off_map_()
     auto new_end = std::remove_if(std::begin(m_cars), std::end(m_cars), [this](auto ptr)
     {
         auto pos = ptr->get_position();
-        return pos.y <= DEFAULT_TOP_BREAK_POSITION || pos.y >= DEFAULT_BOTTOM_BREAK_POSITION;
+        return pos.y >= STOP_CAR_POSITION;
     });
 
     m_cars.erase(new_end, std::end(m_cars));
@@ -116,7 +130,7 @@ void game_state::remove_cars_off_map_()
 void game_state::set_level(const std::string& level)
 {
     if (level == "Easy") {
-        m_count_cars = 5;
+        m_count_cars = 6;
     } else if (level == "Medium") {
         m_count_cars = 8;
     } else {
@@ -126,10 +140,16 @@ void game_state::set_level(const std::string& level)
 
 std::shared_ptr<car> game_state::make_random_car_()
 {
-    std::uniform_int_distribution<int> reverse_distribution(0, 1);
+    std::vector<int> free_roads;
+    for (int i = 0; i < m_free_status_roads.size(); i++) {
+        if (m_free_status_roads[i]) { free_roads.push_back(i); }
+    }
+
+    std::uniform_int_distribution<int> road_distribution(0, free_roads.size() - 1);
 
     int index_texture_car = get_random_index_texture_car_();
-    bool reverse = static_cast<bool>(reverse_distribution(m_generator));
+    int id_road = free_roads[road_distribution(m_generator)];
+    bool reverse = id_road < 2;
 
     std::shared_ptr<car> pc = std::make_shared<car>(
         m_window,
@@ -138,18 +158,15 @@ std::shared_ptr<car> game_state::make_random_car_()
         reverse);
     pc->set_shift_position({0.f, 1.f});
 
-    int start_shift_position = reverse ? 0 : 2;
-    sf::Vector2f position{DEFAULT_CARS_X_POSITION[reverse_distribution(m_generator) + start_shift_position], -130.f};
+
+    sf::Vector2f position{DEFAULT_CARS_X_POSITION[id_road], -130.f};
     pc->set_position(position);
 
-    std::uniform_int_distribution<float> speed_distribution(40.f, get_limit_of_speed_(position.x, reverse));
+    std::uniform_int_distribution<float> speed_distribution(80.f, get_limit_of_speed_(position.x, reverse));
     pc->set_speed(speed_distribution(m_generator));
 
-    if (reverse) {
-        pc->set_speed(-1.f * pc->get_speed() + m_player->get_speed());
-    } else {
-        pc->set_speed(abs(pc->get_speed() - m_player->get_speed()));
-    }
+    m_free_status_roads[id_road] = false;
+    m_time_reserved_roads[id_road] = m_clock.getElapsedTime();
 
     return pc;
 }
@@ -167,18 +184,19 @@ float game_state::get_limit_of_speed_(float x_road, bool reverse) const
     std::shared_ptr<car> first_car = get_first_car_in_road_(x_road, reverse);
 
     if (!first_car) {
-        return 100.f;
+        if (reverse) {
+            return 250.f + m_player->get_speed();
+        } else {
+            return 250.f;
+        }
     }
 
     // x – другая машина
     float x_pos = first_car->get_position().y;
+    float x_car_size = first_car->get_bounds().height;
     float x_speed = first_car->get_speed();
-    // Начало движения новой машины
-    float start_pos = reverse ? DEFAULT_BOTTOM_BREAK_POSITION : DEFAULT_TOP_BREAK_POSITION;
-    // Конец завершения движения машин
-    float end_pos = !reverse ? DEFAULT_BOTTOM_BREAK_POSITION : DEFAULT_TOP_BREAK_POSITION;
 
-    float y_speed = ((start_pos - x_pos) * x_speed) / (end_pos - x_pos) + x_speed;
+    float y_speed = ((START_CAR_POSITION - x_pos - x_car_size * 2) * x_speed) / (STOP_CAR_POSITION - x_pos) + x_speed;
 
     return y_speed;
 }
@@ -216,6 +234,5 @@ bool game_state::is_player_collided_with_car()
                            return car->get_bounds().intersects(player_bounds);
                        });
 }
-
 
 } // namespace traffic_racer

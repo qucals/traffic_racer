@@ -28,14 +28,15 @@ void car::draw()
 {
     move();
 
+#ifdef SHOW_CAR_BOUNDS
     auto b = get_bounds();
     sf::RectangleShape rect({b.width, b.height});
     rect.setPosition(m_position.x,m_position.y);
     rect.setFillColor(sf::Color::White);
+    m_window.draw(rect);
+#endif // SHOW_CAR_BOUNDS
 
     m_sprite.setPosition(m_position.x,m_position.y);
-
-    m_window.draw(rect);
     m_window.draw(m_sprite);
 }
 void car::move()
