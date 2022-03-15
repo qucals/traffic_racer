@@ -36,8 +36,11 @@ public:
     void draw() override;
 
     void set_level(const std::string& level);
+    void set_pointer_to_score(int* score);
 
 protected:
+    void draw_score_();
+
     void load_resources_();
 
     void generate_cars_();
@@ -63,6 +66,8 @@ private:
     sf::Clock m_clock;
     std::vector<bool> m_free_status_roads;
     std::vector<sf::Time> m_time_reserved_roads;
+
+    int* m_score;
 
     sf::Sprite m_background_sprite;
 

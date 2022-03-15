@@ -3,6 +3,7 @@
 //
 
 #include "game_state.h"
+#include "menu_state.h"
 
 namespace traffic_racer
 {
@@ -13,7 +14,7 @@ game_state::game_state(state_machine& machine, sf::RenderWindow& window, bool re
     , m_count_cars(5)
     , m_free_status_roads(4, true)
     , m_time_reserved_roads(4, sf::seconds(0))
-    , m_generator(time(0))
+    , m_generator(time(nullptr))
 {
     load_resources_();
 
@@ -25,12 +26,10 @@ game_state::game_state(state_machine& machine, sf::RenderWindow& window, bool re
 
 void game_state::pause()
 {
-
 }
 
 void game_state::resume()
 {
-
 }
 
 void game_state::update()
@@ -40,10 +39,12 @@ void game_state::update()
             case sf::Event::Closed:
                 m_machine.quit();
                 break;
+#ifdef MOUSE_CLICK_SHOW_POSITION
             case sf::Event::MouseButtonPressed:
                 std::cout << sf::Mouse::getPosition(m_window).x << " "
                           << sf::Mouse::getPosition(m_window).y << std::endl;
                 break;
+#endif // MOUSE_CLICK_SHOW_POSITION
             case sf::Event::KeyReleased:
             case sf::Event::KeyPressed:
                 if (event.key.code == sf::Keyboard::Escape) {
@@ -59,6 +60,16 @@ void game_state::update()
 
     for (auto& car: m_cars) {
         car->update(nullptr);
+    }
+
+    if (!m_score) {
+        throw std::runtime_error("The address space for the score is not set!");
+    }
+
+    if (m_player->get_position().x < 420) {
+        *m_score += 2;
+    } else {
+        *m_score += 1;
     }
 
 #ifndef DISABLE_COLLISION
@@ -79,9 +90,30 @@ void game_state::draw()
     for (auto& car: m_cars) {
         car->draw();
     }
-
     m_player->draw();
+
+    draw_score_();
+
     m_window.display();
+}
+
+void game_state::draw_score_()
+{
+    sf::RectangleShape rectangle({80, 40});
+    rectangle.setPosition({10, 10});
+
+    sf::Text score_text(std::to_string(*m_score / 1000), menu_state::DEFAULT_FONT, 18);
+
+    score_text.setFillColor(sf::Color::Black);
+    score_text.setPosition(18, 19);
+
+    m_window.draw(rectangle);
+    m_window.draw(score_text);
+}
+
+void game_state::set_pointer_to_score(int* score)
+{
+    m_score = score;
 }
 
 void game_state::load_resources_()

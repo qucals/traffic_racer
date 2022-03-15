@@ -17,6 +17,7 @@ namespace traffic_racer
 menu_state::menu_state(state_machine& machine, sf::RenderWindow& window, bool replace)
     : state{machine, window, replace}
     , m_is_selecting_level{false}
+    , m_score(0)
 {
     if (!DEFAULT_FONT.loadFromFile("../bin/fonts/fira_code.ttf")) {
         throw std::runtime_error("Could not load_texture font from file!");
@@ -36,11 +37,14 @@ menu_state::menu_state(state_machine& machine, sf::RenderWindow& window, bool re
         m_level_sections.push_back(section{static_cast<std::string>(str), {}, [](menu_state& ms)
         {
             auto gs = state_machine::build<game_state>(ms.m_machine, ms.m_window, false);
+
             gs->set_level(
                 ms.m_str_level_sections[get_index_selected_section_(ms.m_level_sections)]
             );
-            ms.m_next = std::move(gs);
+            gs->set_pointer_to_score(&ms.m_score);
+
             ms.m_is_selecting_level = false;
+            ms.m_next = std::move(gs);
         }, false});
     }
     m_level_sections[m_level_sections.size() - 1].action = [](menu_state& ms)
@@ -90,6 +94,19 @@ void menu_state::draw()
 {
     m_window.clear(sf::Color::White);
 
+    if (!m_is_selecting_level && m_score != 0) {
+        auto window_size = m_window.getSize();
+        sf::Text score("Your score is " + std::to_string(m_score / 1000), DEFAULT_FONT, 24);
+        sf::FloatRect rect = score.getLocalBounds();
+
+        score.setFillColor(sf::Color::Black);
+        score.setOrigin(rect.left + rect.width / 2.0f,
+                        rect.top + rect.height / 2.0f);
+        score.setPosition({window_size.x / 2.0f, window_size.y / 2.0f - 150});
+
+        m_window.draw(score);
+    }
+
     for (section& s: !m_is_selecting_level ? m_main_sections : m_level_sections) {
         m_window.draw(s.text);
     }
@@ -100,7 +117,7 @@ void menu_state::draw()
 void menu_state::change_active_section_(sf::Event::KeyEvent& key_event)
 {
     std::vector<section>& sections = m_is_selecting_level ? m_level_sections : m_main_sections;
-    size_t selected = get_index_selected_section_(sections);
+    int selected = get_index_selected_section_(sections);
 
     switch (key_event.code) {
         case sf::Keyboard::Up:

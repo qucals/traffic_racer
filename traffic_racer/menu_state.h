@@ -26,6 +26,7 @@ namespace traffic_racer
 
 class menu_state final : public state
 {
+public:
     inline static sf::Font DEFAULT_FONT;
 
     struct section
@@ -57,7 +58,6 @@ class menu_state final : public state
         }
     };
 
-public:
     menu_state(state_machine& machine, sf::RenderWindow& window, bool replace = true);
 
     void pause() override;
@@ -82,6 +82,8 @@ private:
     std::vector<section> m_level_sections;
 
     bool m_is_selecting_level;
+
+    int m_score;
 };
 
 void menu_state::select_level_(menu_state& menu_state)
