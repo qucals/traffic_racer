@@ -26,6 +26,7 @@ menu_state::menu_state(state_machine& machine, sf::RenderWindow& window, bool re
         m_main_sections.push_back(section{static_cast<std::string>(str), {}, [](menu_state&)
         {}, false});
     }
+
     m_main_sections[0].action = this->select_level_;
     m_main_sections[0].set_selected(true);
     m_main_sections[1].action = [](menu_state& ms)
@@ -34,11 +35,12 @@ menu_state::menu_state(state_machine& machine, sf::RenderWindow& window, bool re
     for (auto& str: m_str_level_sections) {
         m_level_sections.push_back(section{static_cast<std::string>(str), {}, [](menu_state& ms)
         {
-            auto gs = state_machine::build<game_state>(ms.m_machine, ms.m_window, true);
+            auto gs = state_machine::build<game_state>(ms.m_machine, ms.m_window, false);
             gs->set_level(
                 ms.m_str_level_sections[get_index_selected_section_(ms.m_level_sections)]
             );
             ms.m_next = std::move(gs);
+            ms.m_is_selecting_level = false;
         }, false});
     }
     m_level_sections[m_level_sections.size() - 1].action = [](menu_state& ms)

@@ -5,6 +5,8 @@
 #ifndef TRAFFICRACER_GAME_STATE_H
 #define TRAFFICRACER_GAME_STATE_H
 
+#define DISABLE_COLLISION
+
 #include <random>
 
 #include "state.h"
@@ -18,8 +20,11 @@ namespace traffic_racer
 class game_state final : public state
 {
     const float DEFAULT_CARS_X_POSITION[4] = {
-        175.f, 290.f, 425.f, 540.f
+        210.f, 330.f, 450.f, 580.f
     };
+
+    const float DEFAULT_TOP_BREAK_POSITION = -140.f;
+    const float DEFAULT_BOTTOM_BREAK_POSITION = 600.f;
 
 public:
     game_state(state_machine& machine, sf::RenderWindow& window, bool replace = true);
@@ -37,7 +42,12 @@ protected:
 
     void generate_cars_();
     void remove_cars_off_map_();
+
     std::shared_ptr<car> make_random_car_();
+    int get_random_index_texture_car_();
+
+    float get_limit_of_speed_(float x_road, bool reverse = false) const;
+    std::shared_ptr<car> get_first_car_in_road_(float x_road, bool reverse = false) const;
 
     [[nodiscard]] bool is_player_collided_with_car();
 

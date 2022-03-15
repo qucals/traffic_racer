@@ -30,7 +30,7 @@ public:
     [[nodiscard]] float get_speed() const;
     void set_speed(float speed);
 
-    
+    sf::FloatRect get_bounds() const;
 
 protected:
     std::string m_name_texture;

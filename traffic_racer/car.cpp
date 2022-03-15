@@ -27,7 +27,15 @@ void car::update(sf::Event*)
 void car::draw()
 {
     move();
+
+    auto b = get_bounds();
+    sf::RectangleShape rect({b.width, b.height});
+    rect.setPosition(m_position.x,m_position.y);
+    rect.setFillColor(sf::Color::White);
+
     m_sprite.setPosition(m_position.x,m_position.y);
+
+    m_window.draw(rect);
     m_window.draw(m_sprite);
 }
 void car::move()
@@ -65,6 +73,11 @@ float car::get_speed() const
 void car::set_speed(float speed)
 {
     m_speed = speed;
+}
+
+sf::FloatRect car::get_bounds() const
+{
+    return m_sprite.getGlobalBounds();
 }
 
 } // namespace traffic_racer

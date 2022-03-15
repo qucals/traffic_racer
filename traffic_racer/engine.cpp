@@ -19,7 +19,6 @@ void engine::run()
         m_machine.next_state();
         m_machine.update();
         m_machine.draw();
-
     }
 }
 
