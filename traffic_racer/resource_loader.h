@@ -46,7 +46,8 @@ public:
         if (m_textures.find(name) != std::end(m_textures)) {
             return &m_textures[name];
         }
-        return nullptr;
+
+        throw std::runtime_error("Could not find texture with name: " + name);
     }
 
 protected:

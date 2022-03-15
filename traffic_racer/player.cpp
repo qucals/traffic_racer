@@ -10,8 +10,8 @@
 namespace traffic_racer
 {
 
-player::player(sf::RenderWindow& window, std::string name_texture)
-    : car{window, std::move(name_texture)}
+player::player(sf::RenderWindow& window, const std::string& name_texture)
+    : car(window, name_texture)
     , mp_texture_loader(resource_loader::get_instance())
 {
     m_position = DEFAULT_PLAYER_POSITION;
@@ -24,7 +24,6 @@ void player::update(sf::Event* event)
 
     switch (event->type) {
         case sf::Event::KeyPressed:
-            std::cout << event->key.code << std::endl;
             switch (event->key.code) {
 //                case sf::Keyboard::Up:
 //                    m_shift_position.y = -1.f;
@@ -52,33 +51,6 @@ void player::update(sf::Event* event)
                     break;
             }
     }
-}
-
-void player::draw()
-{
-    move();
-
-    sf::Texture* car_texture = mp_texture_loader->get(m_name_texture);
-    car_texture->setSmooth(true);
-
-    sf::Sprite car;
-    car.setScale({0.5f, 0.5f});
-    car.setPosition(car.getPosition().x + m_position.x,
-                    car.getPosition().y + m_position.y);
-    car.setTexture(*car_texture);
-
-//    sf::FloatRect bounding_box = car.getGlobalBounds();
-//    car.setOrigin({bounding_box.left / 2, bounding_box.top / 2});
-//    car.setRotation(180);
-
-//    sf::RectangleShape rectangle(sf::Vector2f(128, 128));
-//    rectangle.setPosition({bounding_box.left, bounding_box.top});
-//    rectangle.setFillColor(sf::Color{ 0, 0, 0, 125 });
-//    rectangle.setOutlineColor(sf::Color::Red);
-//    rectangle.setTexture(car_texture);
-
-//    m_window.draw(rectangle);
-    m_window.draw(car);
 }
 
 void player::move()

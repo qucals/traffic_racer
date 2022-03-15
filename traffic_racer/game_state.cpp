@@ -2,8 +2,6 @@
 // Created by Кирилл Галимзянов on 10.03.2022.
 //
 
-#include <random>
-
 #include "game_state.h"
 
 namespace traffic_racer
@@ -12,11 +10,13 @@ namespace traffic_racer
 game_state::game_state(state_machine& machine, sf::RenderWindow& window, bool replace)
     : state(machine, window, replace)
     , mp_resource_loader(resource_loader::get_instance())
-    , m_player(player(window, "car"))
-    , m_level(LEVEL::EASY)
     , m_count_cars(5)
 {
     load_resources_();
+
+    m_player = std::make_shared<player>(window, "car");
+    m_background_sprite = sf::Sprite(*mp_resource_loader->get("background"));
+
     generate_cars_();
 }
 
@@ -43,7 +43,7 @@ void game_state::update()
                 break;
             case sf::Event::KeyReleased:
             case sf::Event::KeyPressed:
-                m_player.update(&event);
+                m_player->update(&event);
             default:
                 break;
         }
@@ -60,18 +60,13 @@ void game_state::draw()
     generate_cars_();
 
     m_window.clear();
-
-    sf::Texture* background_texture = mp_resource_loader->get("background");
-    sf::Sprite background;
-    background.setTexture(*background_texture);
-
-    m_window.draw(background);
+    m_window.draw(m_background_sprite);
 
     for (auto& car: m_cars) {
         car->draw();
     }
 
-    m_player.draw();
+    m_player->draw();
     m_window.display();
 }
 
@@ -90,7 +85,8 @@ void game_state::load_resources_()
 
 void game_state::generate_cars_()
 {
-    for (size_t i = 0; i < rand() % (m_count_cars - m_cars.size()); i++) {
+    std::uniform_int_distribution<int> distribution(0, m_count_cars - m_cars.size());
+    for (size_t i = 0; i < distribution(m_generator); i++) {
         m_cars.push_back(make_random_car_());
     }
 }
@@ -100,7 +96,6 @@ void game_state::remove_cars_off_map_()
     auto new_end = std::remove_if(std::begin(m_cars), std::end(m_cars), [](auto ptr)
     {
         auto pos = ptr->get_position();
-
         return pos.y <= -140.f || pos.y >= 600.f;
     });
 
@@ -110,21 +105,22 @@ void game_state::remove_cars_off_map_()
 void game_state::set_level(const std::string& level)
 {
     if (level == "Easy") {
-        m_level = LEVEL::EASY;
         m_count_cars = 5;
     } else if (level == "Medium") {
-        m_level = LEVEL::MEDIUM;
         m_count_cars = 8;
     } else {
-        m_level = LEVEL::HARD;
         m_count_cars = 10;
     }
 }
 
 std::shared_ptr<car> game_state::make_random_car_()
 {
-    int index = rand() % m_car_texture_paths.size();
-    bool reverse = static_cast<bool>(rand() % 2);
+    std::uniform_int_distribution<int> index_distribution(0, m_car_texture_paths.size()-1);
+    std::uniform_int_distribution<int> reverse_distribution(0, 1);
+    std::uniform_int_distribution<float> speed_distribution(5.f, 100.f);
+
+    int index = index_distribution(m_generator);
+    bool reverse = static_cast<bool>(reverse_distribution(m_generator));
 
     if (m_car_texture_paths[index].second == "car") {
         index++;
@@ -135,19 +131,25 @@ std::shared_ptr<car> game_state::make_random_car_()
         reverse ? m_reversed_car_texture_paths[index].second : m_car_texture_paths[index].second,
         reverse);
     pc->set_shift_position({0.f,1.f});
-//    pc->set_speed(static_cast<float>(rand() % 100 + 5));
-    pc->set_speed(50.f);
+    pc->set_speed(speed_distribution(m_generator));
 
     if (reverse) {
         pc->set_speed(-1.f * pc->get_speed());
-        pc->set_position({DEFAULT_CARS_X_POSITION[rand() % 2], -130.f});
-        pc->set_speed(pc->get_speed() + m_player.get_speed());
+        pc->set_position({DEFAULT_CARS_X_POSITION[reverse_distribution(m_generator)], -130.f});
+        pc->set_speed(pc->get_speed() + m_player->get_speed());
     } else {
-        pc->set_speed(abs(pc->get_speed() - m_player.get_speed()));
-        pc->set_position({DEFAULT_CARS_X_POSITION[(rand() % 2 + 2)], -130.f});
+        pc->set_speed(abs(pc->get_speed() - m_player->get_speed()));
+        pc->set_position({DEFAULT_CARS_X_POSITION[reverse_distribution(m_generator) + 2], -130.f});
     }
 
     return pc;
+}
+
+bool game_state::is_player_collided_with_car()
+{
+
+
+    return false;
 }
 
 } // namespace traffic_racer

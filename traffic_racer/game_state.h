@@ -5,6 +5,8 @@
 #ifndef TRAFFICRACER_GAME_STATE_H
 #define TRAFFICRACER_GAME_STATE_H
 
+#include <random>
+
 #include "state.h"
 #include "state_machine.h"
 #include "resource_loader.h"
@@ -20,12 +22,6 @@ class game_state final : public state
     };
 
 public:
-    enum LEVEL {
-        EASY,
-        MEDIUM,
-        HARD
-    };
-
     game_state(state_machine& machine, sf::RenderWindow& window, bool replace = true);
 
     void pause() override;
@@ -43,15 +39,18 @@ protected:
     void remove_cars_off_map_();
     std::shared_ptr<car> make_random_car_();
 
-private:
-    LEVEL m_level;
+    [[nodiscard]] bool is_player_collided_with_car();
 
-    player m_player;
+private:
+    resource_loader* mp_resource_loader;
+    std::default_random_engine m_generator;
+
+    std::shared_ptr<player> m_player;
     std::vector<std::shared_ptr<car>> m_cars;
 
     size_t m_count_cars;
 
-    resource_loader* mp_resource_loader;
+    sf::Sprite m_background_sprite;
 
     std::pair<std::string, std::string> m_background_texture_path =
         {"../bin/img/background_game.png", "background"};

@@ -1,5 +1,3 @@
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "google-default-arguments"
 //
 // Created by Кирилл Галимзянов on 10.03.2022.
 //
@@ -30,5 +28,3 @@ protected:
 } // namespace traffic_racer
 
 #endif //TRAFFICRACER_ENTITY_H
-
-#pragma clang diagnostic pop

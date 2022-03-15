@@ -14,7 +14,7 @@ namespace traffic_racer
 class car : public entity
 {
 public:
-    car(sf::RenderWindow& window, std::string name_texture, bool reverse = false);
+    car(sf::RenderWindow& window, const std::string& name_texture, bool reverse = false);
 
     void update(sf::Event*) override;
     void draw() override;
@@ -30,15 +30,18 @@ public:
     [[nodiscard]] float get_speed() const;
     void set_speed(float speed);
 
+    
+
 protected:
     std::string m_name_texture;
-    resource_loader* mp_texture_loader;
+    resource_loader* mp_resource_loader;
+
+    sf::Sprite m_sprite;
 
     sf::Vector2f m_position;
     sf::Vector2f m_shift_position;
     sf::Clock m_clock;
 
-    bool m_reverse;
     float m_speed;
 };
 

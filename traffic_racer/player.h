@@ -16,10 +16,9 @@ class player final : public car
     inline static sf::Vector2f DEFAULT_PLAYER_POSITION = {425.f, 450.f};
 
 public:
-    explicit player(sf::RenderWindow& window, std::string name_texture);
+    player(sf::RenderWindow& window, const std::string& name_texture);
 
     void update(sf::Event* event) override;
-    void draw() override;
 
     void move() override;
 

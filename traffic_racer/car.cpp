@@ -10,13 +10,14 @@
 namespace traffic_racer
 {
 
-car::car(sf::RenderWindow& window, std::string name_texture, bool reverse)
+car::car(sf::RenderWindow& window, const std::string& name_texture, bool reverse)
     : entity{window}
-    , m_name_texture{std::move(name_texture)}
-    , mp_texture_loader(resource_loader::get_instance())
-    , m_reverse{reverse}
+    , m_name_texture{name_texture}
+    , mp_resource_loader(resource_loader::get_instance())
+    , m_sprite(*mp_resource_loader->get(m_name_texture))
     , m_speed(0)
 {
+    m_sprite.setScale({0.5f, 0.5f});
 }
 
 void car::update(sf::Event*)
@@ -26,16 +27,8 @@ void car::update(sf::Event*)
 void car::draw()
 {
     move();
-
-    sf::Texture* car_texture = mp_texture_loader->get(m_name_texture);
-    car_texture->setSmooth(true);
-
-    sf::Sprite car;
-    car.setScale({0.5f, 0.5f});
-    car.setPosition(m_position);
-    car.setTexture(*car_texture);
-
-    m_window.draw(car);
+    m_sprite.setPosition(m_position.x,m_position.y);
+    m_window.draw(m_sprite);
 }
 void car::move()
 {
