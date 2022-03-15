@@ -5,7 +5,7 @@
 #ifndef TRAFFICRACER_GAME_STATE_H
 #define TRAFFICRACER_GAME_STATE_H
 
-#define DISABLE_COLLISION
+//#define DISABLE_COLLISION
 
 #include <random>
 
