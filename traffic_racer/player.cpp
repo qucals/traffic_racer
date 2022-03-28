@@ -49,11 +49,11 @@ void player::move()
     if (delta >= 0.1f) { return; }
     m_position += m_shift_position * m_speed * delta;
 
-    if (m_position.x > 575.f) { m_position.x = 575.f; }
-    else if (m_position.x < 140.f) { m_position.x = 140.f; }
+    if (m_position.x > 600.f) { m_position.x = 600.f; }
+    else if (m_position.x < 180.f) { m_position.x = 180.f; }
 
-    if (m_position.y < 20.f) { m_position.y = 20.f; }
-    else if (m_position.y > 450.f) { m_position.y = 450.f; }
+//    if (m_position.y < 20.f) { m_position.y = 20.f; }
+//    else if (m_position.y > 450.f) { m_position.y = 450.f; }
 }
 
 } // namespace traffic_racer

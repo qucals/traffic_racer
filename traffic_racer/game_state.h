@@ -49,8 +49,8 @@ protected:
     std::shared_ptr<car> make_random_car_();
     int get_random_index_texture_car_();
 
-    float get_limit_of_speed_(float x_road, bool reverse = false) const;
-    std::shared_ptr<car> get_first_car_in_road_(float x_road, bool reverse = false) const;
+    float get_limit_of_speed_(float x_road) const;
+    std::shared_ptr<car> get_first_car_in_road_(float x_road) const;
 
     [[nodiscard]] bool is_player_collided_with_car();
 
@@ -65,7 +65,6 @@ private:
 
     sf::Clock m_clock;
     std::vector<bool> m_free_status_roads;
-    std::vector<sf::Time> m_time_reserved_roads;
 
     int* m_score;
 

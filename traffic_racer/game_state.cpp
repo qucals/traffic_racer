@@ -13,7 +13,6 @@ game_state::game_state(state_machine& machine, sf::RenderWindow& window, bool re
     , mp_resource_loader(resource_loader::get_instance())
     , m_count_cars(5)
     , m_free_status_roads(4, true)
-    , m_time_reserved_roads(4, sf::seconds(0))
     , m_generator(time(nullptr))
 {
     load_resources_();
@@ -40,10 +39,10 @@ void game_state::update()
                 m_machine.quit();
                 break;
 #ifdef MOUSE_CLICK_SHOW_POSITION
-            case sf::Event::MouseButtonPressed:
-                std::cout << sf::Mouse::getPosition(m_window).x << " "
-                          << sf::Mouse::getPosition(m_window).y << std::endl;
-                break;
+                case sf::Event::MouseButtonPressed:
+                    std::cout << sf::Mouse::getPosition(m_window).x << " "
+                              << sf::Mouse::getPosition(m_window).y << std::endl;
+                    break;
 #endif // MOUSE_CLICK_SHOW_POSITION
             case sf::Event::KeyReleased:
             case sf::Event::KeyPressed:
@@ -131,10 +130,10 @@ void game_state::load_resources_()
 
 void game_state::generate_cars_()
 {
-    sf::Time current = m_clock.getElapsedTime();
-    for (int i = 0; i < m_time_reserved_roads.size(); i++) {
-        if (current.asSeconds() - m_time_reserved_roads[i].asSeconds() > 0.5f) {
-            m_free_status_roads[i] = true;
+    for (int i = 0; i < m_free_status_roads.size(); i++) {
+        if (!m_free_status_roads[i]) {
+            auto car = get_first_car_in_road_(DEFAULT_CARS_X_POSITION[i]);
+            m_free_status_roads[i] = !car || car->get_position().y > (100.0f + car->get_bounds().width);
         }
     }
 
@@ -162,11 +161,11 @@ void game_state::remove_cars_off_map_()
 void game_state::set_level(const std::string& level)
 {
     if (level == "Easy") {
-        m_count_cars = 6;
+        m_count_cars = 3;
     } else if (level == "Medium") {
-        m_count_cars = 8;
+        m_count_cars = 5;
     } else {
-        m_count_cars = 10;
+        m_count_cars = 7;
     }
 }
 
@@ -194,11 +193,12 @@ std::shared_ptr<car> game_state::make_random_car_()
     sf::Vector2f position{DEFAULT_CARS_X_POSITION[id_road], -130.f};
     pc->set_position(position);
 
-    std::uniform_int_distribution<float> speed_distribution(80.f, get_limit_of_speed_(position.x, reverse));
-    pc->set_speed(speed_distribution(m_generator));
+    float limit = get_limit_of_speed_(position.x);
+    std::uniform_real_distribution<float> speed_distribution(125.f, limit);
+    float speed = speed_distribution(m_generator);
+    pc->set_speed(speed);
 
     m_free_status_roads[id_road] = false;
-    m_time_reserved_roads[id_road] = m_clock.getElapsedTime();
 
     return pc;
 }
@@ -211,16 +211,12 @@ int game_state::get_random_index_texture_car_()
     return index;
 }
 
-float game_state::get_limit_of_speed_(float x_road, bool reverse) const
+float game_state::get_limit_of_speed_(float x_road) const
 {
-    std::shared_ptr<car> first_car = get_first_car_in_road_(x_road, reverse);
+    std::shared_ptr<car> first_car = get_first_car_in_road_(x_road);
 
     if (!first_car) {
-        if (reverse) {
-            return 250.f + m_player->get_speed();
-        } else {
-            return 250.f;
-        }
+        return 250.f;
     }
 
     // x – другая машина
@@ -228,12 +224,15 @@ float game_state::get_limit_of_speed_(float x_road, bool reverse) const
     float x_car_size = first_car->get_bounds().height;
     float x_speed = first_car->get_speed();
 
-    float y_speed = ((START_CAR_POSITION - x_pos - x_car_size * 2) * x_speed) / (STOP_CAR_POSITION - x_pos) + x_speed;
+    float y_speed = (fabs((START_CAR_POSITION - x_pos + x_car_size)) * x_speed) /
+        (STOP_CAR_POSITION + x_car_size - x_pos) + x_speed;
+
+    if (y_speed > 500.f) { y_speed = 500.f; }
 
     return y_speed;
 }
 
-std::shared_ptr<car> game_state::get_first_car_in_road_(float x_road, bool reverse) const
+std::shared_ptr<car> game_state::get_first_car_in_road_(float x_road) const
 {
     std::shared_ptr<car> min = nullptr;
 
@@ -241,9 +240,7 @@ std::shared_ptr<car> game_state::get_first_car_in_road_(float x_road, bool rever
         if (car->get_position().x != x_road) { continue; }
 
         if (min) {
-            if (reverse && min->get_position().y > car->get_position().y) {
-                min = car;
-            } else if (!reverse && min->get_position().y < car->get_position().y) {
+            if (min->get_position().y > car->get_position().y) {
                 min = car;
             }
         } else {

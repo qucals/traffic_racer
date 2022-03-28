@@ -7,6 +7,7 @@
 
 #include <utility>
 #include <vector>
+#include <functional>
 
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/Sprite.hpp>
